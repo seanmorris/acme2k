@@ -45,6 +45,8 @@ void	acmeerrorinit(void);
 void	readfile(Column*, char*);
 static int	shutdown(void*, char*);
 
+char *dumpfile;
+
 void
 derror(Display *d, char *errorstr)
 {
