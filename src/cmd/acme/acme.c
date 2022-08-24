@@ -111,7 +111,8 @@ threadmain(int argc, char *argv[])
 			goto Usage;
 		break;
 	case 'l':
-		loadfile = ARGF();
+	case 's':
+		dumpfile = loadfile = ARGF();
 		if(loadfile == nil)
 			goto Usage;
 		break;

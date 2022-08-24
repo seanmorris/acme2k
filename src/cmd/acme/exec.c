@@ -869,10 +869,12 @@ dump(Text *_0, Text *_1, Text *argt, int isdump, int _2, Rune *arg, int narg)
 		name = runetobyte(arg, narg);
 	else
 		getbytearg(argt, FALSE, TRUE, &name);
+
 	if(isdump)
-		rowdump(&row, name);
+		rowdump(&row, name != nil ? name : dumpfile);
 	else
-		rowload(&row, name, FALSE);
+		rowload(&row, name != nil ? name : dumpfile, FALSE);
+
 	free(name);
 }
 

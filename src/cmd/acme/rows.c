@@ -319,7 +319,7 @@ rowdump(Row *row, char *file)
 	int i, j, fd, m, n, dumped;
 	uint q0, q1;
 	Biobuf *b;
-	char *buf, *a, *fontname;
+	char *buf, *ldir, *sdir, *a, *fontname;
 	Rune *r;
 	Column *c;
 	Window *w, *w1;
@@ -327,14 +327,30 @@ rowdump(Row *row, char *file)
 
 	if(row->ncol == 0)
 		return;
+	ldir = fbufalloc();
+	sdir = fbufalloc();
 	buf = fbufalloc();
 	if(file == nil){
 		if(home == nil){
 			warning(nil, "can't find file for dump: $home not defined\n");
 			goto Rescue;
 		}
-		sprint(buf, "%s/acme.dump", home);
+		sprint(ldir, "%s/lib", home);
+		sprint(sdir, "%s/acme.session", ldir);
+		sprint(buf, "%s/acme.dump", sdir);
+
 		file = buf;
+
+		struct stat st = {0};
+
+		if (stat(ldir, &st) == -1) {
+			warning(nil, "creating dir '%s'...\n", ldir);
+			mkdir(ldir, 0700);
+		}
+		if (stat(sdir, &st) == -1) {
+			warning(nil, "creating dir '%s'...\n", sdir);
+			mkdir(sdir, 0700);
+		}
 	}
 	fd = create(file, OWRITE, 0600);
 	if(fd < 0){
@@ -531,7 +547,7 @@ rowload(Row *row, char *file, int initing)
 			warning(nil, "can't find file for load: $home not defined\n");
 			goto Rescue1;
 		}
-		sprint(buf, "%s/acme.dump", home);
+		sprint(buf, "%s/lib/acme.session/acme.dump", home);
 		file = buf;
 	}
 	b = Bopen(file, OREAD);

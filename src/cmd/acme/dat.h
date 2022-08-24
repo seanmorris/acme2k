@@ -578,3 +578,5 @@ Channel	*cwarn;		/* chan(void*)[1] (really chan(unit)[1]) */
 QLock	editoutlk;
 
 #define	STACK	65536
+
+extern char *dumpfile;
