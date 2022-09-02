@@ -123,7 +123,22 @@ fsysinit(void)
 	initfcall();
 	if(pipe(p) < 0)
 		error("can't create pipe");
-	if(post9pservice(p[0], "acme.$session", mtpt) < 0)
+
+	char *defaultSession = "$session";
+	char *session, *suffix;
+
+	session = fbufalloc();
+
+	suffix = dumpfile;
+
+	if(dumpfile == nil)
+	{
+		suffix = defaultSession;
+	}
+
+	sprint(session, "acme.%s", suffix);
+
+	if(post9pservice(p[0], session, mtpt) < 0)
 		error("can't post service");
 	sfd = p[1];
 	fmtinstall('F', fcallfmt);
@@ -463,7 +478,7 @@ fsyswalk(Xfid *x, Fid *f)
 			qunlock(&row.lk);
 			dir = dirtabw;
 			goto Accept;
-	
+
     Regular:
 			if(strcmp(x->fcall.wname[i], "new") == 0){
 				if(w)

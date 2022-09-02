@@ -324,35 +324,43 @@ rowdump(Row *row, char *file)
 	Column *c;
 	Window *w, *w1;
 	Text *t;
+	char *defaultFile = "acme.dump";
 
 	if(row->ncol == 0)
 		return;
+
 	ldir = fbufalloc();
 	sdir = fbufalloc();
 	buf = fbufalloc();
-	if(file == nil){
-		if(home == nil){
-			warning(nil, "can't find file for dump: $home not defined\n");
-			goto Rescue;
-		}
-		sprint(ldir, "%s/lib", home);
-		sprint(sdir, "%s/acme.session", ldir);
-		sprint(buf, "%s/acme.dump", sdir);
 
-		file = buf;
-
-		struct stat st = {0};
-
-		if (stat(ldir, &st) == -1) {
-			warning(nil, "creating dir '%s'...\n", ldir);
-			mkdir(ldir, 0700);
-		}
-		if (stat(sdir, &st) == -1) {
-			warning(nil, "creating dir '%s'...\n", sdir);
-			mkdir(sdir, 0700);
-		}
+	if(home == nil){
+		warning(nil, "can't find file for dump: $home not defined\n");
+		goto Rescue;
 	}
+
+	if(file == nil){
+		file = defaultFile;
+	}
+
+	sprint(ldir, "%s/lib", home);
+	sprint(sdir, "%s/acme.session", ldir);
+	sprint(buf, "%s/%s", sdir, file);
+
+	file = buf;
+
+	struct stat st = {0};
+
+	if (stat(ldir, &st) == -1) {
+		warning(nil, "creating dir '%s'...\n", ldir);
+		mkdir(ldir, 0700);
+	}
+	if (stat(sdir, &st) == -1) {
+		warning(nil, "creating dir '%s'...\n", sdir);
+		mkdir(sdir, 0700);
+	}
+
 	fd = create(file, OWRITE, 0600);
+
 	if(fd < 0){
 		warning(nil, "can't open %s: %r\n", file);
 		goto Rescue;
@@ -540,16 +548,23 @@ rowload(Row *row, char *file, int initing)
 	uint q0, q1;
 	Rectangle r1, r2;
 	Window *w;
+	char *defaultFile = "acme.dump";
 
 	buf = fbufalloc();
-	if(file == nil){
-		if(home == nil){
-			warning(nil, "can't find file for load: $home not defined\n");
-			goto Rescue1;
-		}
-		sprint(buf, "%s/lib/acme.session/acme.dump", home);
-		file = buf;
+
+	if(home == nil){
+		warning(nil, "can't find file for load: $home not defined\n");
+		goto Rescue1;
 	}
+
+	if(file == nil){
+		file = defaultFile;
+	}
+
+	sprint(buf, "%s/lib/acme.session/%s", home, file);
+
+	file = buf;
+
 	b = Bopen(file, OREAD);
 	if(b == nil){
 		warning(nil, "can't open load file %s: %r\n", file);
